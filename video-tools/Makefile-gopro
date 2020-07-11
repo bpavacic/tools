@@ -1,0 +1,37 @@
+MAKEFILE_PATH := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+
+# Step 1: Stitch GoPro videos that the camera split into multiple files into a single file.
+#
+# GoPro HERO5 naming: GOPRxxxx.mp4 GPzzxxxx.mp4
+# GoPro HERO6 naming: GHzzxxxx.mp4 GXzzxxxx.mp4
+
+# Extract 4-digit video ids to stitch.
+TO_STITCH := $(shell echo $(wildcard G[HXP]02????.MP4) | cut -c 5-8)
+
+stitch-all: $(patsubst %, stitched-%.MP4, $(TO_STITCH))
+
+stitched-%.MP4: G?0[123456789]%.MP4
+	($(MAKEFILE_PATH)/concat-mp4-files.sh $(sort $^) -o "$@" && rm $^ )
+
+# Step 2: Rename files and fix file timestamps.
+#
+# Files are renamed to VID_yyyymmdd_hhmmss-gopro.mp4 format.
+#
+# Make sure that the system time zone is set to the same time zone videos are recorded in.
+
+rename-all: $(addsuffix .renamed-phony, $(basename $(wildcard G[HXP]??????.MP4)) $(basename $(wildcard stitched-????.MP4)))
+
+%.renamed-phony : %.MP4
+	(exiftool -api largefilesupport=1 "-createDate>FileModifyDate" "$<" && exiftool -api largefilesupport=1 '-Filename<CreateDate' -d 'VID_%Y%m%d_%H%M%S-gopro.mp4' "$<" )
+
+
+# Step 3: Compress files to save space, using H.264 compression.
+#
+# Output files have "-h264" suffix added and the original files are removed. 
+#
+# TODO(bobo): Compression script to be revisited and modified to copy GoPro data streams properly.
+
+compress-all: $(addsuffix -h264.mp4, $(basename $(wildcard VID_????????_??????-gopro.mp4)) )
+
+%-h264.mp4 : %.mp4
+	( $(MAKEFILE_path)/create-compressed-mp4.sh "$<" "$@" && rm "$<" )
