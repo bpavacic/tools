@@ -28,7 +28,7 @@ AUDIO_OPTIONS="-c:a aac -b:a 128k"
 #                         the file.
 # map_metadata 0 => Copies mp4 metadata (such as location of the video, time recorded etc) from the
 #                   first input file
-MPEG_OPTIONS="-movflags +faststart -map_metadata 0"
+MPEG_OPTIONS="-movflags +faststart -map_metadata 0 -ignore_unknown"
 
 ffmpeg -i "$INPUT" $AUDIO_OPTIONS $VIDEO_OPTIONS $MPEG_OPTIONS "$OUTPUT"
 # Copy the filestamp.

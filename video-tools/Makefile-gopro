@@ -34,4 +34,4 @@ rename-all: $(addsuffix .renamed-phony, $(basename $(wildcard G[HXP]??????.MP4))
 compress-all: $(addsuffix -h264.mp4, $(basename $(wildcard VID_????????_??????-gopro.mp4)) )
 
 %-h264.mp4 : %.mp4
-	( $(MAKEFILE_path)/create-compressed-mp4.sh "$<" "$@" && rm "$<" )
+	($(MAKEFILE_PATH)/create-compressed-mp4.sh "$<" "$@" && rm "$<" )
