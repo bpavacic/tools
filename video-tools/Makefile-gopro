@@ -31,7 +31,7 @@ rename-all: $(addsuffix .renamed-phony, $(basename $(wildcard G[HXP]??????.MP4))
 #
 # TODO(bobo): Compression script to be revisited and modified to copy GoPro data streams properly.
 
-compress-all: $(addsuffix -h264.mp4, $(basename $(wildcard VID_????????_??????-gopro.mp4)) )
+compress-all: $(addsuffix -h264.mp4, $(basename $(wildcard VID_????????_??????-gopro.mp4)) $(basename $(wildcard VID_????????_??????.mp4)))
 
 %-h264.mp4 : %.mp4
 	($(MAKEFILE_PATH)/create-compressed-mp4.sh "$<" "$@" && rm "$<" )
