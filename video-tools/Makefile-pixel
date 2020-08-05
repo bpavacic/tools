@@ -1,0 +1,16 @@
+# Compress all video files and remove the originals.
+
+all-h264: $(addsuffix -h264.mp4, $(basename $(wildcard ????????_??????A.mp4)) $(basename $(wildcard VID_????????_??????.mp4)) $(basename $(wildcard VID_????????_??????_LS.mp4)) $(basename $(wildcard VID_????????_??????~[1-9].mp4)))
+
+mkfile_path := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+
+%-h264.mp4 : %.mp4
+	($(mkfile_path)/create-compressed-mp4.sh "$<" "$@" && rm "$<")
+
+# Fix all JPG timestamps in current directory.
+fix-jpg-timestamps:
+	jhead -ft *jpg
+
+# Fix all MP4 timestamps in current directory (same time zone as current one)
+fix-mp4-timestamps:
+	exiftool "-CreateDate>FileModifyDate" -api QuickTimeUTC *mp4
