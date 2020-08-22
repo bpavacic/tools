@@ -19,7 +19,7 @@ stitched-%.MP4: G?0[123456789]%.MP4
 #
 # Make sure that the system time zone is set to the same time zone videos are recorded in.
 
-rename-all: $(addsuffix .renamed-phony, $(basename $(wildcard G[HXP]??????.MP4)) $(basename $(wildcard stitched-????.MP4)))
+rename-all: $(addsuffix .renamed-phony, $(basename $(wildcard G[HXP]??????.MP4)) $(basename $(wildcard GOPR????.MP4)) $(basename $(wildcard stitched-????.MP4)))
 
 %.renamed-phony : %.MP4
 	(exiftool -api largefilesupport=1 "-createDate>FileModifyDate" "$<" && exiftool -api largefilesupport=1 '-Filename<CreateDate' -d 'VID_%Y%m%d_%H%M%S-gopro.mp4' "$<" )
