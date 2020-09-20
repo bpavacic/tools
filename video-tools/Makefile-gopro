@@ -8,7 +8,7 @@ MAKEFILE_PATH := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 # Extract 4-digit video ids to stitch.
 TO_STITCH := $(shell echo $(wildcard G[HXP]02????.MP4) | cut -c 5-8)
 
-stitch-all: $(patsubst %, stitched-%.MP4, $(TO_STITCH))
+step-1-stitch-all: $(patsubst %, stitched-%.MP4, $(TO_STITCH))
 
 stitched-%.MP4: G?0[123456789]%.MP4
 	($(MAKEFILE_PATH)/concat-mp4-files.sh $(sort $^) -o "$@" && rm $^ )
@@ -19,7 +19,7 @@ stitched-%.MP4: G?0[123456789]%.MP4
 #
 # Make sure that the system time zone is set to the same time zone videos are recorded in.
 
-rename-all: $(addsuffix .renamed-phony, $(basename $(wildcard G[HXP]??????.MP4)) $(basename $(wildcard GOPR????.MP4)) $(basename $(wildcard stitched-????.MP4)))
+step-2-rename-all: $(addsuffix .renamed-phony, $(basename $(wildcard G[HXP]??????.MP4)) $(basename $(wildcard GOPR????.MP4)) $(basename $(wildcard stitched-????.MP4)))
 
 %.renamed-phony : %.MP4
 	(exiftool -api largefilesupport=1 "-createDate>FileModifyDate" "$<" && exiftool -api largefilesupport=1 '-Filename<CreateDate' -d 'VID_%Y%m%d_%H%M%S-gopro.mp4' "$<" )
@@ -33,7 +33,7 @@ rename-all: $(addsuffix .renamed-phony, $(basename $(wildcard G[HXP]??????.MP4))
 # IMPORTANT: Make sure you run this step only once and that both the GoPro and your computer have
 # correct (local) time set.
 
-adjust-time-to-utc-all: $(addsuffix .utc-phony, $(basename $(wildcard VID_????????_??????-gopro.mp4)))
+step-3-adjust-time-to-utc-all: $(addsuffix .utc-phony, $(basename $(wildcard VID_????????_??????-gopro.mp4)))
 
 %.utc-phony : %.mp4
 	$(MAKEFILE_PATH)/adjust-gopro-time-to-utc.sh "$<"
@@ -46,7 +46,7 @@ adjust-time-to-utc-all: $(addsuffix .utc-phony, $(basename $(wildcard VID_??????
 # TODO(bobo): Compression script to be revisited and modified to copy GoPro-specific data streams
 #             properly.
 
-compress-all: $(addsuffix -h264.mp4, $(basename $(wildcard VID_????????_??????-gopro.mp4)) $(basename $(wildcard VID_????????_??????.mp4)))
+step-4-compress-all: $(addsuffix -h264.mp4, $(basename $(wildcard VID_????????_??????-gopro.mp4)) $(basename $(wildcard VID_????????_??????.mp4)))
 
 %-h264.mp4 : %.mp4
 	($(MAKEFILE_PATH)/create-compressed-mp4.sh "$<" "$@" && rm "$<" )
