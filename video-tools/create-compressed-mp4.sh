@@ -34,6 +34,7 @@ fi
 
 # AAC audio codec, 128k target bitrate.
 AUDIO_OPTIONS="-c:a aac -b:a 128k"
+
 # -movflags +faststart => speeds up video startup by storing bunch of metadata at the beginning of
 #                         the file.
 # map_metadata 0 => Copies mp4 metadata (such as location of the video, time recorded etc) from the
@@ -41,6 +42,6 @@ AUDIO_OPTIONS="-c:a aac -b:a 128k"
 MPEG_OPTIONS="-movflags +faststart -map_metadata 0 -ignore_unknown"
 
 ffmpeg -i "$INPUT" $AUDIO_OPTIONS $VIDEO_OPTIONS $MPEG_OPTIONS "$OUTPUT"
-# Copy the filestamp.
+# Copy the file timestamp.
 touch -r "$INPUT" "$OUTPUT"
 
