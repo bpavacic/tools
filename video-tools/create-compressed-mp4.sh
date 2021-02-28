@@ -16,7 +16,7 @@ fi
 INPUT=$1
 OUTPUT=$2
 
-if [[ -z "${USE_VAAPI}" ]]; then
+if [ -z "${USE_VAAPI}" ]; then
     # H.264 using X264 codec
     # slower => increases quality by taking more time to process frames
     # crf 26 => constant rate factor, determines target quality and bitrate. Lower means better quality,
