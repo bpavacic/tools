@@ -17,36 +17,43 @@ stitched-%.MP4: G?0[123456789]%.MP4
 #
 # Files are renamed to VID_yyyymmdd_hhmmss-gopro.mp4 format.
 #
-# Make sure that the system time zone is set to the same time zone videos are recorded in.
+# Make sure that the local system time zone is set to the same time zone photos and videos are recorded in.
 
-step-2-rename-all: $(addsuffix .renamed-phony, $(basename $(wildcard G[HXP]??????.MP4)) $(basename $(wildcard GOPR????.MP4)) $(basename $(wildcard stitched-????.MP4)))
+step-2-rename-all: $(addsuffix .renamed-phony-mp4, $(basename $(wildcard G[HXP]??????.MP4)) $(basename $(wildcard GOPR????.MP4)) $(basename $(wildcard stitched-????.MP4))) $(addsuffix .renamed-phony-jpg, $(basename $(wildcard GOPR????.JPG)))
 
-%.renamed-phony : %.MP4
+%.renamed-phony-mp4 : %.MP4
 	(exiftool -api largefilesupport=1 "-createDate>FileModifyDate" "$<" && exiftool -api largefilesupport=1 '-Filename<CreateDate' -d 'VID_%Y%m%d_%H%M%S-gopro.mp4' "$<" )
 
-# Step 3: Set videos time to be in UTC.
+%.renamed-phony-jpg : %.JPG
+	(exiftool -api largefilesupport=1 "-createDate>FileModifyDate" "$<" && exiftool -api largefilesupport=1 '-Filename<CreateDate' -d 'IMG_%Y%m%d_%H%M%S-gopro.jpg' "$<" )
+
+# Step 3: Set videos time to be in UTC and set proper time zone for photos.
 #
 # Now that file names contain (local) time when the videos were recorded, adjust the time in .mp4
 # metadata to be in UTC time zone and conform to .mp4 standards. GoPros unfortunatelly don't have a
 # notion of time zones which makes time in metadata always wrong.
 #
+# For photos, OffsetTime* tags are set to the current time zone offset.
+#
 # IMPORTANT: Make sure you run this step only once and that both the GoPro and your computer have
 # correct (local) time set.
 
-step-3-adjust-time-to-utc-all: $(addsuffix .utc-phony, $(basename $(wildcard VID_????????_??????-gopro.mp4)))
+step-3-adjust-time-zone: $(addsuffix .utc-phony-mp4, $(basename $(wildcard VID_????????_??????-gopro.mp4))) $(addsuffix .utc-phony-jpg, $(basename $(wildcard IMG_????????_??????-gopro.jpg)))
 
-%.utc-phony : %.mp4
-	$(MAKEFILE_PATH)/adjust-gopro-time-to-utc.sh "$<"
+%.utc-phony-mp4 : %.mp4
+	$(MAKEFILE_PATH)/adjust-gopro-mp4-time-to-utc.sh "$<"
 
+%.utc-phony-jpg : %.jpg
+	(exiftool -overwrite_original_in_place -api largefilesupport=1 -OffsetTime*=`date +"%::z"` "-CreateDate>FileModifyDate" "$<")
 
-# Step 4: Compress files to save space using H.264 compression.
+# Step 4: Compress mp4 video to save space using H.264 compression.
 #
-# Output files have "-h264" suffix added and the original files are removed. 
+# Output files will have "-h264" suffix added and the original files are removed. 
 #
 # TODO(bobo): Compression script to be revisited and modified to copy GoPro-specific data streams
 #             properly.
 
-step-4-compress-all: $(addsuffix -h264.mp4, $(basename $(wildcard VID_????????_??????-gopro.mp4)) $(basename $(wildcard VID_????????_??????.mp4)))
+step-4-compress-videos: $(addsuffix -h264.mp4, $(basename $(wildcard VID_????????_??????-gopro.mp4)) $(basename $(wildcard VID_????????_??????.mp4)))
 
 %-h264.mp4 : %.mp4
 	($(MAKEFILE_PATH)/create-compressed-mp4.sh "$<" "$@" && rm "$<" )
