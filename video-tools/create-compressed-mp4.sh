@@ -25,7 +25,7 @@ if [ "${H264_MODE}" == "VAAPI" ]; then
 elif [ "${H264_MODE}" == "QSV" ]; then
     # H.264 using QuickSync available inside many Intel GPUs.
     # global_quality => use ICQ mode (which is similar to crf mode of x264)
-    VIDEO_OPTIONS="-init_hw_device qsv=hw -filter_hw_device hw -c:v h264_qsv -global_quality 25"
+    VIDEO_OPTIONS="-init_hw_device qsv=hw -filter_hw_device hw -c:v h264_qsv -global_quality 28"
 else
     # Defaut - H.264 using software-based X264 codec
     # slower => increases quality by taking more time to process frames
