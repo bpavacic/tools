@@ -1,9 +1,17 @@
 MAKEFILE_PATH := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
+# Step 0: Remove thumbnail (THM) and low-res videos (.LRV)
+
+step-0-remove-extra-files: $(addsuffix .remove, $(wildcard GL*.LRV) $(wildcard G[HXP]??????.THM) $(wildcard GOPR????.THM))
+
+%.remove: %
+	rm "$<"
+
 # Step 1: Stitch GoPro videos that the camera split into multiple files into a single file.
 #
 # GoPro HERO5 naming: GOPRxxxx.mp4 GPzzxxxx.mp4
 # GoPro HERO6 naming: GHzzxxxx.mp4 GXzzxxxx.mp4
+
 
 # Extract 4-digit video ids to stitch.
 TO_STITCH := $(shell echo $(wildcard G[HXP]02????.MP4) | cut -c 5-8)
