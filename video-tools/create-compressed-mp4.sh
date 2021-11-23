@@ -23,6 +23,10 @@ if [ "${H264_MODE}" == "VAAPI" ]; then
     #       and lower quality.
     VIDEO_OPTIONS="-vaapi_device /dev/dri/renderD128 -vf 'format=nv12,hwupload' -c:v h264_vaapi -qp 32"
 elif [ "${H264_MODE}" == "QSV" ]; then
+    # FOR QSV to work properly, make sure to:
+    #
+    # sudo apt-get install intel-media-va-driver-non-free libmfx1 libigfxcmrt7
+    #
     # H.264 using QuickSync available inside many Intel GPUs.
     # global_quality => use ICQ mode (which is similar to crf mode of x264)
     VIDEO_OPTIONS="-init_hw_device qsv=hw -filter_hw_device hw -c:v h264_qsv -global_quality 28"
